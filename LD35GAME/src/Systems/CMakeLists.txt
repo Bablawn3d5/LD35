@@ -6,12 +6,14 @@ set(SRC
     ${SRCROOT}/LD35InputSystem.cpp
     ${SRCROOT}/TextureRenderSystem.cpp
     ${SRCROOT}/GameSystem.cpp
+    ${SRCROOT}/SpawnSystem.cpp
 )
 
 set(INC
     ${INCROOT}/LD35InputSystem.h
     ${INCROOT}/TextureRenderSystem.h
     ${INCROOT}/GameSystem.h
+    ${INCROOT}/SpawnSystem.h
 )
 
 # Set all source files
