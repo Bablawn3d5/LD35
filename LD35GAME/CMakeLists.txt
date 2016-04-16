@@ -31,7 +31,6 @@ add_definitions(/DHAVE_ROUND)
 # Statically link boost
 add_definitions(-DBOOST_STATIC -DBOOST_PYTHON_STATIC_LIB )
 # Tell CMake to build a Farquaad executable
-add_executable(LD35GAME main.cpp)
 include_directories(${Farquaad_SOURCE_DIR}/include)
 include_directories(${jsoncpp-amalgamate_SOURCE_DIR})
 include_directories(${EntityX_SOURCE_DIR})
@@ -48,9 +47,49 @@ file(GLOB ConfigFiles
     ${FarquaadExamples_SOURCE_DIR}/*.json
     ${FarquaadExamples_SOURCE_DIR}/Resources/*.json)
 
+set(INCROOT ${PROJECT_SOURCE_DIR}/include)
+set(SRCROOT ${PROJECT_SOURCE_DIR}/src)
+
+# Include the src directory
+add_subdirectory(${LD35GAME_SOURCE_DIR}/src)
+
+# Set source_group for Visual Studio organization
+foreach(FILE ${INCLUDES} ${SOURCES})
+    # Get the directory of the source file
+    get_filename_component(PARENT_DIR "${FILE}" DIRECTORY)
+    get_filename_component(PARENT_DIR "${PARENT_DIR}" ABSOLUTE)
+
+    # Remove common directory prefix to make the group
+    string(REPLACE "${CMAKE_CURRENT_SOURCE_DIR}" "" GROUP "${PARENT_DIR}")
+
+    # Make sure we are using windows slashes
+    string(REPLACE "/" "\\" GROUP "${GROUP}")
+
+    # Remove redundant src\\
+    string(REPLACE "src\\" "" GROUP "${GROUP}")
+    string(REPLACE "\\src" "\\" GROUP "${GROUP}")
+
+    # Group into "Source Files" and "Header Files"
+    if ("${FILE}" MATCHES ".*\\.cpp")
+       set(GROUP "Source Files${GROUP}")
+    elseif("${FILE}" MATCHES ".*\\.h(pp)?")
+       set(GROUP "Header Files${GROUP}")
+    endif()
+
+    # Check if file exists
+    if(NOT EXISTS ${FILE})
+        message( FATAL_ERROR "THE FILE YOU'VE ADDED: ${FILE} DOES NOT EXIST!" )
+    else()
+        message ( STATUS "Group added: ${GROUP} : ${FILE}")
+    endif()
+
+    source_group("${GROUP}" FILES "${FILE}")
+endforeach()
+
+add_executable(LD35GAME main.cpp ${INCLUDES} ${SOURCES})
+
 add_dependencies(LD35GAME CopyConfigs)
 target_link_libraries(LD35GAME Farquaad)
-
 
 # Set installation directory to incl Packages
 install(TARGETS LD35GAME DESTINATION bin)
