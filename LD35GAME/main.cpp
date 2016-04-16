@@ -10,6 +10,7 @@
 #include <Systems/TextureRenderSystem.h>
 #include <Systems/LD35InputSystem.h>
 #include <Systems/GameSystem.h>
+#include <Systems/SpawnSystem.h>
 #include <Components/Sprite.hpp>
 #include <Components/BlockWhole.hpp>
 #include <Components/GameBody.hpp>
@@ -20,6 +21,8 @@
 #include <Farquaad/Thor/ResourceLoader.hpp>
 #include <Farquaad/Box2D/SFMLB2DDebug.h>
 #include <Thor/Resources.hpp>
+
+#include <random>
 
 namespace fs = boost::filesystem;
 
@@ -42,6 +45,14 @@ public:
 
     systems.add<TextureRenderSystem>(target);
 
+    unsigned int seed = v["seed"].asInt();
+    if ( seed == 0 ) {
+      std::random_device rd;
+      std::mt19937 gen(rd());
+      seed = gen();
+    }
+
+    systems.add<SpawnSystem>(v["spawn_row"].asInt(), v["spawn_col"].asInt(), seed);
     systems.add<GameSystem>();
     systems.configure();
 
@@ -58,22 +69,6 @@ public:
       auto entity = entities.create();
       es.Load(entity);
     }
-
-	// Let's make an active block so it can move down...
-	ex::Entity blockPart1 = entities.create();
-	blockPart1.assign<GameBody>(5, 5);
-	blockPart1.assign<Body>();
-	blockPart1.assign<Sprite>("./Resources/10x10.png");
-
-	ex::Entity blockPart2 = entities.create();
-	blockPart2.assign<GameBody>(5, 6);
-	blockPart2.assign<Body>();
-	blockPart2.assign<Sprite>("./Resources/10x10.png");
-
-	ex::Entity blockWhole = entities.create();
-	auto blockWholeComponent = blockWhole.assign<BlockWhole>();
-	blockWholeComponent->blockParts.push_back(blockPart1.id());
-	blockWholeComponent->blockParts.push_back(blockPart2.id());
   }
 
   ~Application() {
@@ -83,6 +78,7 @@ public:
     systems.update<LD35InputSystem>(dt);
     systems.update<PhysicsSystem>(dt);
     systems.update<TextureRenderSystem>(dt);
+    systems.update<SpawnSystem>(dt);
     systems.update<GameSystem>(dt);
     physWorld->DrawDebugData();
   }

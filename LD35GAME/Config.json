@@ -9,5 +9,8 @@
   "entities" : [
     "./Resources/Hero.json",
     "./Resources/Box.json"
-  ]
+  ],
+  "spawn_row" : 5,
+  "spawn_col" : 16,
+  "seed" : 0
 }

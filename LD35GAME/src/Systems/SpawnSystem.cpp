@@ -2,15 +2,16 @@
 #include <Systems/SpawnSystem.h>
 #include <Components/GameBody.hpp>
 #include <Components/BlockWhole.hpp>
+#include <Components/Sprite.hpp>
 #include <Farquaad/Components.hpp>
 
 void SpawnSystem::update(ex::EntityManager & em,
                          ex::EventManager & events, ex::TimeDelta dt) {
   // Check if BlockWhole exists
-  bool needToSpawn = false;
+  bool needToSpawn = true;
   em.each<BlockWhole>(
     [&](ex::Entity entity, BlockWhole &responder) {
-    needToSpawn = true;
+    needToSpawn = false;
   }
   );
 
@@ -18,7 +19,7 @@ void SpawnSystem::update(ex::EntityManager & em,
   // Spawn stuff within limitColnums columns
   if ( needToSpawn ) {
     std::mt19937 gen(seed);
-    seed = gen.max();
+    seed = gen();
     std::uniform_int_distribution<> dis(1, 6);
     std::uniform_int_distribution<> randRow(1, limitRow);
     std::uniform_int_distribution<> randCol(1, limitCol);
@@ -29,10 +30,9 @@ void SpawnSystem::update(ex::EntityManager & em,
     auto blockWhole = movingEnt.assign<BlockWhole>();
     while ( blocksToCreate > 0 ) {
       ex::Entity e = em.create();
-      blockCreator.Load(e);
-      auto b = e.component<GameBody>();
-      b->row = randRow(gen);
-      b->column = randCol(gen);
+      e.assign<GameBody>(randRow(gen), randCol(gen));
+      e.assign<Body>();
+      e.assign<Sprite>("./Resources/10x10.png"); auto b = e.component<GameBody>();
       blockWhole->blockParts.push_back(e.id());
       blocksToCreate--;
     }
