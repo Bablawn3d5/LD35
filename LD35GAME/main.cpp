@@ -49,16 +49,6 @@ public:
       auto entity = entities.create();
       es.Load(entity);
     }
-
-    // HACK(SMA) : Create 'background' right up in here.
-    {
-      std::unique_ptr<sf::CircleShape> shape(new sf::CircleShape(100.f));
-      shape->setFillColor(sf::Color::Green);
-
-      auto entity = entities.create();
-      entity.assign<Body>();
-      entity.assign<RenderableShape>(std::move(shape));
-    }
   }
 
   ~Application() {
