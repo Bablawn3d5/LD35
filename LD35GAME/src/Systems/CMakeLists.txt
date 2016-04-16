@@ -5,11 +5,13 @@ set(SRCROOT ${PROJECT_SOURCE_DIR}/src/Systems)
 set(SRC
     ${SRCROOT}/LD35InputSystem.cpp
     ${SRCROOT}/TextureRenderSystem.cpp
+    ${SRCROOT}/GameSystem.cpp
 )
 
 set(INC
     ${INCROOT}/LD35InputSystem.h
     ${INCROOT}/TextureRenderSystem.h
+    ${INCROOT}/GameSystem.h
 )
 
 # Set all source files

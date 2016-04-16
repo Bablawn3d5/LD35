@@ -9,6 +9,7 @@
 #include <entityx/entityx.h>
 #include <Systems/TextureRenderSystem.h>
 #include <Systems/LD35InputSystem.h>
+#include <Systems/GameSystem.h>
 #include <Components/Sprite.hpp>
 #include <Farquaad/Systems.hpp>
 #include <Farquaad/Systems/PythonSystem.h>
@@ -38,11 +39,13 @@ public:
     inputSystem->setKeybinds(Serializable::fromJSON<InputSystem::KeyBindMap>(v["keys"]));
 
     systems.add<TextureRenderSystem>(target);
+
+    systems.add<GameSystem>();
     systems.configure();
 
-    std::string path = fs::current_path().string();
-    auto pythonSystem = systems.add<PythonSystem>(&entities, path.c_str());
-    pythonSystem->add_path("Foo");
+    //std::string path = fs::current_path().string();
+    //auto pythonSystem = systems.add<PythonSystem>(&entities, path.c_str());
+    //pythonSystem->add_path("Foo");
 
     // HACK(SMA) : Create entity right in this bloated constructor.
     thor::ResourceHolder<Json::Value, std::string> holder;
@@ -62,7 +65,7 @@ public:
     systems.update<LD35InputSystem>(dt);
     systems.update<PhysicsSystem>(dt);
     systems.update<TextureRenderSystem>(dt);
-    systems.update<PythonSystem>(dt);
+    systems.update<GameSystem>(dt);
     physWorld->DrawDebugData();
   }
 };
