@@ -7,11 +7,14 @@
 #include <Box2D/Box2D.h>
 #include <entityx/entityx.h>
 #include <Farquaad/Systems.hpp>
+#include <Farquaad/Systems/PythonSystem.h>
 #include <Farquaad/Components.hpp>
 #include <Farquaad/Core.hpp>
 #include <Farquaad/Thor/ResourceLoader.hpp>
 #include <Farquaad/Box2D/SFMLB2DDebug.h>
 #include <Thor/Resources.hpp>
+
+namespace fs = boost::filesystem;
 
 // Quick test for EntityX
 class Application : public entityx::EntityX {
@@ -32,6 +35,10 @@ public:
 
     systems.add<RenderSystem>(target);
     systems.configure();
+
+    std::string path = fs::current_path().string();
+    auto pythonSystem = systems.add<PythonSystem>(&entities, path.c_str());
+    pythonSystem->add_path("Foo");
 
     // HACK(SMA) : Create entity right in this bloated constructor.
     thor::ResourceHolder<Json::Value, std::string> holder;
@@ -61,6 +68,7 @@ public:
     systems.update<InputSystem>(dt);
     systems.update<PhysicsSystem>(dt);
     systems.update<RenderSystem>(dt);
+    systems.update<PythonSystem>(dt);
     physWorld->DrawDebugData();
   }
 };
