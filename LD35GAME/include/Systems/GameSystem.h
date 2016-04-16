@@ -19,4 +19,5 @@ public:
 
 private:
   KeyBindReponder responders;
+  double timeSinceLastMovement;
 };

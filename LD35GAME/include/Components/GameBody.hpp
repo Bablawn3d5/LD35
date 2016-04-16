@@ -7,6 +7,8 @@
 struct GameBody {
 public:
 	explicit GameBody(int row = 0, int column = 0) {
+		this->column = column;
+		this->row = row;
 	}
 
 	~GameBody() {}

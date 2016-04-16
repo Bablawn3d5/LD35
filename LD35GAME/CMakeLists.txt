@@ -45,7 +45,8 @@ link_directories(${Boost_LIBRARY_DIR})
 # Add target to copy files
 file(GLOB ConfigLD32Files
     ${LD35GAME_SOURCE_DIR}/*.json
-    ${LD35GAME_SOURCE_DIR}/Resources/*.json)
+    ${LD35GAME_SOURCE_DIR}/Resources/*.json
+    ${LD35GAME_SOURCE_DIR}/Resources/*.png)
 
 set(INCROOT ${PROJECT_SOURCE_DIR}/include)
 set(SRCROOT ${PROJECT_SOURCE_DIR}/src)

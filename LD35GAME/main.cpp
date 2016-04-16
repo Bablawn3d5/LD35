@@ -11,6 +11,8 @@
 #include <Systems/LD35InputSystem.h>
 #include <Systems/GameSystem.h>
 #include <Components/Sprite.hpp>
+#include <Components/BlockWhole.hpp>
+#include <Components/GameBody.hpp>
 #include <Farquaad/Systems.hpp>
 #include <Farquaad/Systems/PythonSystem.h>
 #include <Farquaad/Components.hpp>
@@ -56,6 +58,22 @@ public:
       auto entity = entities.create();
       es.Load(entity);
     }
+
+	// Let's make an active block so it can move down...
+	ex::Entity blockPart1 = entities.create();
+	blockPart1.assign<GameBody>(5, 5);
+	blockPart1.assign<Body>();
+	blockPart1.assign<Sprite>("./Resources/10x10.png");
+
+	ex::Entity blockPart2 = entities.create();
+	blockPart2.assign<GameBody>(5, 6);
+	blockPart2.assign<Body>();
+	blockPart2.assign<Sprite>("./Resources/10x10.png");
+
+	ex::Entity blockWhole = entities.create();
+	auto blockWholeComponent = blockWhole.assign<BlockWhole>();
+	blockWholeComponent->blockParts.push_back(blockPart1.id());
+	blockWholeComponent->blockParts.push_back(blockPart2.id());
   }
 
   ~Application() {
