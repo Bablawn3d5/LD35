@@ -7,7 +7,7 @@
     },
     "physics" : {
         "bodyType" : "STATIC",
-        "size" : [ 50, 50 ]
+        "size" : [ 640, 320 ]
     },
     "sprite" : {
         "file" : "./Resources/fabric_texture.jpg"

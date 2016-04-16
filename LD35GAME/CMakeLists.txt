@@ -43,9 +43,9 @@ include_directories(${Boost_INCLUDE_DIRS})
 link_directories(${Boost_LIBRARY_DIR})
 
 # Add target to copy files
-file(GLOB ConfigFiles
-    ${FarquaadExamples_SOURCE_DIR}/*.json
-    ${FarquaadExamples_SOURCE_DIR}/Resources/*.json)
+file(GLOB ConfigLD32Files
+    ${LD35GAME_SOURCE_DIR}/*.json
+    ${LD35GAME_SOURCE_DIR}/Resources/*.json)
 
 set(INCROOT ${PROJECT_SOURCE_DIR}/include)
 set(SRCROOT ${PROJECT_SOURCE_DIR}/src)
@@ -90,7 +90,28 @@ add_executable(LD35GAME main.cpp ${INCLUDES} ${SOURCES})
 
 include_directories(${INCROOT})
 
-add_dependencies(LD35GAME CopyConfigs)
+add_custom_target(CopyLD32Configs ALL DEPENDS ${ConfigLD32Files})
+foreach(ConfigFile ${ConfigLD32Files})
+    # Get the directory of the source file
+    get_filename_component(PARENT_DIR "${ConfigFile}" DIRECTORY)
+    get_filename_component(PARENT_DIR "${PARENT_DIR}" ABSOLUTE)
+
+    # Remove common directory prefix to make the group
+    string(REPLACE "${LD35GAME_SOURCE_DIR}" "" GROUP "${PARENT_DIR}")
+
+    add_custom_command(TARGET CopyLD32Configs PRE_BUILD
+                     COMMAND ${CMAKE_COMMAND} -E
+                     make_directory "${CMAKE_BINARY_DIR}/${CMAKE_CFG_INTDIR}/${GROUP}/" )
+    add_custom_command(TARGET CopyLD32Configs PRE_BUILD
+                     COMMAND ${CMAKE_COMMAND} -E
+                         copy_if_different "${ConfigFile}"
+                              "${CMAKE_BINARY_DIR}/${CMAKE_CFG_INTDIR}/${GROUP}/"
+                     DEPENDS ${ConfigFile}
+                     COMMENT "Copying ${ConfigFile}" )
+    install(FILES ${ConfigFile} DESTINATION bin/${GROUP})
+endforeach()
+
+add_dependencies(LD35GAME CopyLD32Configs)
 target_link_libraries(LD35GAME Farquaad)
 
 # Set installation directory to incl Packages
