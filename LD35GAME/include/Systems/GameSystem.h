@@ -20,4 +20,7 @@ public:
 private:
   KeyBindReponder responders;
   double timeSinceLastMovement;
+  static const int MAX_ROWS = 16;
+  static const int MAX_COLUMNS = 10;
+  std::vector<std::vector<ex::Entity::Id>> gameGrid;
 };

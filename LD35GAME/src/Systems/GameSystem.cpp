@@ -4,7 +4,7 @@
 #include <Components/GameBody.hpp>
 #include <Farquaad/Components.hpp>
 
-GameSystem::GameSystem() {
+GameSystem::GameSystem() : gameGrid(MAX_ROWS, std::vector<ex::Entity::Id>(MAX_COLUMNS)) {
 
   timeSinceLastMovement = 0.0;
 
@@ -75,13 +75,31 @@ void GameSystem::update(ex::EntityManager & em,
 	if (timeSinceLastMovement >= 1.0)
 	{
 		// Do stuff with moving parts
+		std::set<ex::Entity::Id> entitiesToKill;
+
 		em.each<BlockWhole>(
 			[&](ex::Entity entity, BlockWhole &blockWhole) {
 			for (auto entityId : blockWhole.blockParts) {
 				ex::Entity blockPartEntity = em.get(entityId);
-				blockPartEntity.component<GameBody>()->row++;
+				auto blockPartGameBody = blockPartEntity.component<GameBody>();
+				int currentRow = blockPartGameBody->row;
+				if (currentRow + 1 <= MAX_ROWS)
+				{
+					blockPartGameBody->row = currentRow + 1;
+					gameGrid[blockPartGameBody->row - 1][blockPartGameBody->column - 1] = blockPartEntity.id();
+				}
+				else
+				{
+					entitiesToKill.insert(entity.id());
+				}
 			}
 		});
+
+		for each (ex::Entity::Id entityId in entitiesToKill)
+		{
+			ex::Entity entityToKill = em.get(entityId);
+			entityToKill.remove<BlockWhole>();
+		}
 
 		timeSinceLastMovement = 0.0;
 	}
