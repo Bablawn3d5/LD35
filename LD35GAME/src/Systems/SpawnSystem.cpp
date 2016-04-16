@@ -5,6 +5,17 @@
 #include <Components/Sprite.hpp>
 #include <Farquaad/Components.hpp>
 
+SpawnSystem::SpawnSystem(int limitRow, int limitColumn, unsigned int startSeed) :
+limitRow(limitRow), limitCol(limitColumn), seed(startSeed) {
+  std::mt19937 gen(seed);
+  color_chooser = std::uniform_int_distribution<>{0,4};
+  textureName.push_back("./Resources/BlockG.png");
+  textureName.push_back("./Resources/BlockR.png");
+  textureName.push_back("./Resources/BlockY.png");
+  textureName.push_back("./Resources/BlockP.png");
+  textureName.push_back("./Resources/BlockT.png");
+};
+
 void SpawnSystem::update(ex::EntityManager & em,
                          ex::EventManager & events, ex::TimeDelta dt) {
   // Check if BlockWhole exists
@@ -37,7 +48,9 @@ void SpawnSystem::update(ex::EntityManager & em,
       created.insert(p);
       e.assign<GameBody>(p.first, p.second, movingEnt.id());
       e.assign<Body>();
-      e.assign<Sprite>("./Resources/10x10.png"); auto b = e.component<GameBody>();
+      unsigned int color_index = color_chooser(gen);
+      e.assign<Sprite>(textureName.at(color_index));
+      auto b = e.component<GameBody>();
     };
 
     auto blockWhole = movingEnt.assign<BlockWhole>();
