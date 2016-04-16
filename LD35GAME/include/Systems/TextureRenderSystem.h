@@ -15,5 +15,5 @@ public:
 
 private:
 	sf::RenderTarget& target;
-	static const int PIXELS_PER_GRID = 10;
+	static const int PIXELS_PER_GRID = 50;
 };
