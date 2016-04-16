@@ -2,10 +2,13 @@
 
 #include <boost/python.hpp>
 #include <Farquaad/Serialization.hpp>
+#include <Core/JSONSerializedExtendedComponents.hpp>
 #include <json/json.h>
 #include <SFML/Graphics.hpp>
 #include <Box2D/Box2D.h>
 #include <entityx/entityx.h>
+#include <Systems/TextureRenderSystem.h>
+#include <Components/Sprite.hpp>
 #include <Farquaad/Systems.hpp>
 #include <Farquaad/Components.hpp>
 #include <Farquaad/Core.hpp>
@@ -30,7 +33,7 @@ public:
     auto inputSystem = systems.add<InputSystem>(target);
     inputSystem->setKeybinds(Serializable::fromJSON<InputSystem::KeyBindMap>(v["keys"]));
 
-    systems.add<RenderSystem>(target);
+    systems.add<TextureRenderSystem>(target);
     systems.configure();
 
     // HACK(SMA) : Create entity right in this bloated constructor.
@@ -60,7 +63,7 @@ public:
   void update(ex::TimeDelta dt) {
     systems.update<InputSystem>(dt);
     systems.update<PhysicsSystem>(dt);
-    systems.update<RenderSystem>(dt);
+    systems.update<TextureRenderSystem>(dt);
     physWorld->DrawDebugData();
   }
 };
@@ -74,6 +77,7 @@ int main() {
     Serializable::handle<Body>();
     Serializable::handle<Stats>();
     Serializable::handle<Physics>();
+	Serializable::handle<Sprite>();
     Serializable::handle<InputResponder>();
   }
 

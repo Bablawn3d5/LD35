@@ -88,6 +88,8 @@ endforeach()
 
 add_executable(LD35GAME main.cpp ${INCLUDES} ${SOURCES})
 
+include_directories(${INCROOT})
+
 add_dependencies(LD35GAME CopyConfigs)
 target_link_libraries(LD35GAME Farquaad)
 

@@ -8,5 +8,8 @@
     "physics" : {
         "bodyType" : "STATIC",
         "size" : [ 50, 50 ]
+    },
+    "sprite" : {
+        "file" : "./Resources/fabric_texture.jpg"
     }
 }

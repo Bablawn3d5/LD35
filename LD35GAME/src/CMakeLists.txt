@@ -2,6 +2,7 @@
 # Process all directories
 add_subdirectory(${SRCROOT}/Systems)
 add_subdirectory(${SRCROOT}/Components)
+add_subdirectory(${SRCROOT}/Core)
 
 # Pass sources and includes to parent
 set(SOURCES
