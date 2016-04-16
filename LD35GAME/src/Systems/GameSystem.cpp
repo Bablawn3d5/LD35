@@ -106,34 +106,34 @@ void GameSystem::update(ex::EntityManager & em,
 			return;
 		}
 
-		bool allowMoveRight = true;
+		bool allowHorizontalMovement = true;
 		for (auto entityId : blockWhole.blockParts) {
 			// NOTE: row/column are 1-based indexing, but we access the game grid using 0-based index.
 			ex::Entity blockPartEntity = em.get(entityId);
 			auto blockPartGameBody = blockPartEntity.component<GameBody>();
 			int currentColumn = blockPartGameBody->column;
 
-			// Check if we are at the right side of the grid
+			// Check if we are at the edge of the grid
 			if ((currentColumn + body.direction.x) <= MAX_COLUMNS && (currentColumn + body.direction.x) > 0)
 			{
-				// Check if moving the block right will collide with another block.
+				// Check if moving the block will collide with another block.
 				// Also ignore collisions with your own entity.
-				ex::Entity::Id blockPartRightId = gameGrid[blockPartGameBody->row - 1][currentColumn - 1];
-				if (blockPartRightId == ex::Entity::INVALID)
+				ex::Entity::Id blockPartBesideId = gameGrid[blockPartGameBody->row - 1][currentColumn - 1];
+				if (blockPartBesideId == ex::Entity::INVALID)
 				{
 					// Movement is allowed here.
 				}
 				else
 				{
-					auto blockPartRightGameBody = em.get(blockPartRightId).component<GameBody>();
-					if (blockPartRightGameBody->parentId == entity.id())
+					auto blockPartBesideGameBody = em.get(blockPartBesideId).component<GameBody>();
+					if (blockPartBesideGameBody->parentId == entity.id())
 					{
 						// Hello, it's me.
 					}
 					else
 					{
-						// There is a block right of us, so don't move
-						allowMoveRight = false;
+						// There is a block in our way, so don't move
+						allowHorizontalMovement = false;
 						break;
 					}
 				}
@@ -141,12 +141,12 @@ void GameSystem::update(ex::EntityManager & em,
 			else
 			{
 				// We are at the right side of the grid, so don't move
-				allowMoveRight = false;
+				allowHorizontalMovement = false;
 				break;
 			}
 		}
 
-		if (allowMoveRight == true)
+		if (allowHorizontalMovement == true)
 		{
 			for (auto entityId : blockWhole.blockParts) {
 				// NOTE: row/column are 1-based indexing, but we access the game grid using 0-based index.
