@@ -9,6 +9,13 @@ GameSystem::GameSystem(double timeSpawn) : gameGrid(MAX_ROWS, std::vector<ex::En
   timeSinceLastMovement = 0.0;
   this->timeSpawn = timeSpawn;
 
+  for (unsigned int i = 0; i < gameGrid.size(); i++) {
+	  for (unsigned int j = 0; j < gameGrid[i].size(); j++)
+	  {
+		  gameGrid[i][j] = ex::Entity::INVALID;
+	  }
+  }
+
   responders["+MoveUp"] = [](ex::Entity e) {
     if ( e.has_component<Body>() ) {
       e.component<Body>()->direction.y -= 1;
@@ -73,6 +80,24 @@ void GameSystem::update(ex::EntityManager & em,
 		}
 	});
 
+	// Sync up the game grid
+	em.each<BlockWhole>(
+		[&](ex::Entity entity, BlockWhole &blockWhole) {
+		for (auto entityId : blockWhole.blockParts) {
+			ex::Entity blockPartEntity = em.get(entityId);
+			auto blockPartGameBody = blockPartEntity.component<GameBody>();
+			if (gameGrid[blockPartGameBody->row - 1][blockPartGameBody->column - 1] != ex::Entity::INVALID &&
+				gameGrid[blockPartGameBody->row - 1][blockPartGameBody->column - 1] != entityId)
+			{
+				// We spawned on top of something, delete what was there before we replace it.
+				// This can also be a game-over condition.
+				em.destroy(gameGrid[blockPartGameBody->row - 1][blockPartGameBody->column - 1]);
+			}
+
+			gameGrid[blockPartGameBody->row - 1][blockPartGameBody->column - 1] = entityId;
+		}
+	});
+
 	if (timeSinceLastMovement >= timeSpawn )
 	{
 		// Do stuff with moving parts
@@ -86,6 +111,7 @@ void GameSystem::update(ex::EntityManager & em,
 				ex::Entity blockPartEntity = em.get(entityId);
 				auto blockPartGameBody = blockPartEntity.component<GameBody>();
 				int currentRow = blockPartGameBody->row;
+
 				// Check if we are at the bottom of the game grid.
 				if (currentRow + 1 <= MAX_ROWS)
 				{
@@ -142,6 +168,45 @@ void GameSystem::update(ex::EntityManager & em,
 		{
 			ex::Entity entityToKill = em.get(entityId);
 			entityToKill.remove<BlockWhole>();
+		}
+
+		// Now we check if there are any lines
+		for (unsigned int i = 0; i < gameGrid.size(); i++)
+		{
+			bool isRowFull = true;
+
+			for each(ex::Entity::Id entityId in gameGrid[i])
+			{
+				if (entityId == ex::Entity::INVALID)
+				{
+					isRowFull = false;
+				}
+				else
+				{
+					ex::Entity currentEntity = em.get(entityId);
+					auto currentEntityGameBody = currentEntity.component<GameBody>();
+					ex::Entity parentEntity = em.get(currentEntityGameBody->parentId);
+					if (parentEntity.has_component<BlockWhole>() == true)
+					{
+						isRowFull = false;
+					}
+				}
+
+				if (isRowFull == false)
+				{
+					// No need to keep processing the row if it's missing a square.
+					break;
+				}
+			}
+
+			if (isRowFull == true)
+			{
+				for (unsigned int j = 0; j < gameGrid[i].size(); j++)
+				{
+					em.destroy(gameGrid[i][j]);
+					gameGrid[i][j] = ex::Entity::INVALID;
+				}
+			}
 		}
 
 		timeSinceLastMovement = 0.0;
