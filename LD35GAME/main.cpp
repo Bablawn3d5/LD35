@@ -8,6 +8,7 @@
 #include <Box2D/Box2D.h>
 #include <entityx/entityx.h>
 #include <Systems/TextureRenderSystem.h>
+#include <Systems/LD35InputSystem.h>
 #include <Components/Sprite.hpp>
 #include <Farquaad/Systems.hpp>
 #include <Farquaad/Systems/PythonSystem.h>
@@ -33,7 +34,7 @@ public:
                         b2Draw::e_aabbBit | b2Draw::e_pairBit);
 
     systems.add<PhysicsSystem>(physWorld, debugDraw.get());
-    auto inputSystem = systems.add<InputSystem>(target);
+    auto inputSystem = systems.add<LD35InputSystem>(target);
     inputSystem->setKeybinds(Serializable::fromJSON<InputSystem::KeyBindMap>(v["keys"]));
 
     systems.add<TextureRenderSystem>(target);
@@ -58,7 +59,7 @@ public:
   }
 
   void update(ex::TimeDelta dt) {
-    systems.update<InputSystem>(dt);
+    systems.update<LD35InputSystem>(dt);
     systems.update<PhysicsSystem>(dt);
     systems.update<TextureRenderSystem>(dt);
     systems.update<PythonSystem>(dt);
@@ -75,7 +76,7 @@ int main() {
     Serializable::handle<Body>();
     Serializable::handle<Stats>();
     Serializable::handle<Physics>();
-	Serializable::handle<Sprite>();
+    Serializable::handle<Sprite>();
     Serializable::handle<InputResponder>();
   }
 

@@ -3,10 +3,12 @@ set(INCROOT ${PROJECT_SOURCE_DIR}/include/Systems)
 set(SRCROOT ${PROJECT_SOURCE_DIR}/src/Systems)
 
 set(SRC
+    ${SRCROOT}/LD35InputSystem.cpp
     ${SRCROOT}/TextureRenderSystem.cpp
 )
 
 set(INC
+    ${INCROOT}/LD35InputSystem.h
     ${INCROOT}/TextureRenderSystem.h
 )
 
