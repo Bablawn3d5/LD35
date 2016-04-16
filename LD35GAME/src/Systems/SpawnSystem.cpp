@@ -20,19 +20,30 @@ void SpawnSystem::update(ex::EntityManager & em,
   if ( needToSpawn ) {
     std::mt19937 gen(seed);
     seed = gen();
-    std::uniform_int_distribution<> dis(1, 6);
+    std::uniform_int_distribution<> dis(2, 16);
     std::uniform_int_distribution<> randRow(1, limitRow);
     std::uniform_int_distribution<> randCol(1, limitCol);
-    // Create a block
 
+    std::set<std::pair<int, int>> created;
+    // Create a block
     int blocksToCreate = dis(gen);
     ex::Entity movingEnt = em.create();
+    auto creator_rand = [&](ex::Entity e) {
+      // Ensure we dont have a block created in the spot we picked.
+      std::pair<int, int> p = { randRow(gen), randCol(gen) };
+      while ( created.find(p) != created.end() ) {
+        p = { randRow(gen), randCol(gen) };
+      }
+      created.insert(p);
+      e.assign<GameBody>(p.first, p.second);
+      e.assign<Body>();
+      e.assign<Sprite>("./Resources/10x10.png"); auto b = e.component<GameBody>();
+    };
+
     auto blockWhole = movingEnt.assign<BlockWhole>();
     while ( blocksToCreate > 0 ) {
       ex::Entity e = em.create();
-      e.assign<GameBody>(randRow(gen), randCol(gen));
-      e.assign<Body>();
-      e.assign<Sprite>("./Resources/10x10.png"); auto b = e.component<GameBody>();
+      creator_rand(e);
       blockWhole->blockParts.push_back(e.id());
       blocksToCreate--;
     }

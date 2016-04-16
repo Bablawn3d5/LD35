@@ -11,6 +11,6 @@
     "./Resources/Box.json"
   ],
   "spawn_row" : 5,
-  "spawn_col" : 16,
+  "spawn_col" : 10,
   "seed" : 0
 }

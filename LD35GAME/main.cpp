@@ -50,6 +50,7 @@ public:
       std::random_device rd;
       std::mt19937 gen(rd());
       seed = gen();
+      std::cout << "The seed is: " << seed << std::endl;
     }
 
     systems.add<SpawnSystem>(v["spawn_row"].asInt(), v["spawn_col"].asInt(), seed);
