@@ -4,9 +4,10 @@
 #include <Components/GameBody.hpp>
 #include <Farquaad/Components.hpp>
 
-GameSystem::GameSystem() : gameGrid(MAX_ROWS, std::vector<ex::Entity::Id>(MAX_COLUMNS)) {
+GameSystem::GameSystem(double timeSpawn) : gameGrid(MAX_ROWS, std::vector<ex::Entity::Id>(MAX_COLUMNS)) {
 
   timeSinceLastMovement = 0.0;
+  this->timeSpawn = timeSpawn;
 
   responders["+MoveUp"] = [](ex::Entity e) {
     if ( e.has_component<Body>() ) {
@@ -72,7 +73,7 @@ void GameSystem::update(ex::EntityManager & em,
 		}
 	});
 
-	if (timeSinceLastMovement >= 1.0)
+	if (timeSinceLastMovement >= timeSpawn )
 	{
 		// Do stuff with moving parts
 		std::set<ex::Entity::Id> entitiesToKill;

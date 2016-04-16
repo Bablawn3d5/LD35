@@ -54,7 +54,7 @@ public:
     }
 
     systems.add<SpawnSystem>(v["spawn_row"].asInt(), v["spawn_col"].asInt(), seed);
-    systems.add<GameSystem>();
+    systems.add<GameSystem>(v["time_spawn"].asDouble());
     systems.configure();
 
     //std::string path = fs::current_path().string();
