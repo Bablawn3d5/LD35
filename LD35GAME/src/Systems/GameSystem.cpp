@@ -80,18 +80,60 @@ void GameSystem::update(ex::EntityManager & em,
 
 		em.each<BlockWhole>(
 			[&](ex::Entity entity, BlockWhole &blockWhole) {
+
 			for (auto entityId : blockWhole.blockParts) {
+				// NOTE: row/column are 1-based indexing, but we access the game grid using 0-based index.
 				ex::Entity blockPartEntity = em.get(entityId);
 				auto blockPartGameBody = blockPartEntity.component<GameBody>();
 				int currentRow = blockPartGameBody->row;
+				// Check if we are at the bottom of the game grid.
 				if (currentRow + 1 <= MAX_ROWS)
 				{
-					blockPartGameBody->row = currentRow + 1;
-					gameGrid[blockPartGameBody->row - 1][blockPartGameBody->column - 1] = blockPartEntity.id();
+					// Check if moving the block down will collide with another block.
+					// Also ignore collisions with your own entity.
+					ex::Entity::Id blockPartBelowId = gameGrid[currentRow][blockPartGameBody->column - 1];
+					if (blockPartBelowId == ex::Entity::INVALID)
+					{
+						// Movement is allowed here.
+					}
+					else
+					{
+						auto blockPartBelowGameBody = em.get(blockPartBelowId).component<GameBody>();
+						auto as = blockPartBelowGameBody->parentId;
+						auto asd = entity.id();
+						if (blockPartBelowGameBody->parentId == entity.id())
+						{
+							// Hello, it's me.
+						}
+						else
+						{
+							// There is a block below us, so don't move and add the block to the 'kill' queue.
+							entitiesToKill.insert(entity.id());
+						}
+					}
 				}
 				else
 				{
+					// We are atr the bottom of the grid, so don't move and add the block to the 'kill' queue.
 					entitiesToKill.insert(entity.id());
+				}
+			}
+
+			if (entitiesToKill.size() == 0)
+			{
+				for (auto entityId : blockWhole.blockParts) {
+					// NOTE: row/column are 1-based indexing, but we access the game grid using 0-based index.
+					ex::Entity blockPartEntity = em.get(entityId);
+					auto blockPartGameBody = blockPartEntity.component<GameBody>();
+					int currentRow = blockPartGameBody->row;
+					
+					// All clear below - full speed ahead
+					// First, remove the block from its current spot in the grid.
+					gameGrid[currentRow - 1][blockPartGameBody->column - 1] = ex::Entity::INVALID;
+
+					// Set the new position in the grid.
+					blockPartGameBody->row = currentRow + 1;
+					gameGrid[currentRow][blockPartGameBody->column - 1] = blockPartEntity.id();
 				}
 			}
 		});

@@ -35,7 +35,7 @@ void SpawnSystem::update(ex::EntityManager & em,
         p = { randRow(gen), randCol(gen) };
       }
       created.insert(p);
-      e.assign<GameBody>(p.first, p.second);
+      e.assign<GameBody>(p.first, p.second, movingEnt.id());
       e.assign<Body>();
       e.assign<Sprite>("./Resources/10x10.png"); auto b = e.component<GameBody>();
     };
