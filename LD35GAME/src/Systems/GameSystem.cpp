@@ -80,6 +80,75 @@ void GameSystem::update(ex::EntityManager & em,
 		}
 	});
 
+	// Move the moveable things left-right
+	em.each<Body, BlockWhole>(
+		[&](ex::Entity entity, Body &body, BlockWhole &blockWhole) {
+		if (body.direction.x == 1)
+		{
+			bool allowMoveRight = true;
+			for (auto entityId : blockWhole.blockParts) {
+				// NOTE: row/column are 1-based indexing, but we access the game grid using 0-based index.
+				ex::Entity blockPartEntity = em.get(entityId);
+				auto blockPartGameBody = blockPartEntity.component<GameBody>();
+				int currentColumn = blockPartGameBody->column;
+
+				// Check if we are at the right side of the grid
+				if (currentColumn + 1 <= MAX_COLUMNS)
+				{
+					// Check if moving the block right will collide with another block.
+					// Also ignore collisions with your own entity.
+					ex::Entity::Id blockPartRightId = gameGrid[blockPartGameBody->row - 1][currentColumn];
+					if (blockPartRightId == ex::Entity::INVALID)
+					{
+						// Movement is allowed here.
+					}
+					else
+					{
+						auto blockPartRightGameBody = em.get(blockPartRightId).component<GameBody>();
+						if (blockPartRightGameBody->parentId == entity.id())
+						{
+							// Hello, it's me.
+						}
+						else
+						{
+							// There is a block right of us, so don't move
+							allowMoveRight = false;
+							break;
+						}
+					}
+				}
+				else
+				{
+					// We are at the right side of the grid, so don't move
+					allowMoveRight = false;
+					break;
+				}
+			}
+
+			if (allowMoveRight == true)
+			{
+				for (auto entityId : blockWhole.blockParts) {
+					// NOTE: row/column are 1-based indexing, but we access the game grid using 0-based index.
+					ex::Entity blockPartEntity = em.get(entityId);
+					auto blockPartGameBody = blockPartEntity.component<GameBody>();
+					int currentColumn = blockPartGameBody->column;
+
+					// All clear below - full speed to the right
+					// First, remove the block from its current spot in the grid.
+					gameGrid[blockPartGameBody->row - 1][currentColumn - 1] = ex::Entity::INVALID;
+
+					// Set the new position in the grid.
+					blockPartGameBody->column = currentColumn + 1;
+					gameGrid[blockPartGameBody->row - 1][currentColumn] = blockPartEntity.id();
+				}
+			}
+		}
+		else if (body.direction.x == -1)
+		{
+
+		}
+	});
+
 	// Sync up the game grid
 	em.each<BlockWhole>(
 		[&](ex::Entity entity, BlockWhole &blockWhole) {
@@ -125,8 +194,6 @@ void GameSystem::update(ex::EntityManager & em,
 					else
 					{
 						auto blockPartBelowGameBody = em.get(blockPartBelowId).component<GameBody>();
-						auto as = blockPartBelowGameBody->parentId;
-						auto asd = entity.id();
 						if (blockPartBelowGameBody->parentId == entity.id())
 						{
 							// Hello, it's me.
@@ -140,7 +207,7 @@ void GameSystem::update(ex::EntityManager & em,
 				}
 				else
 				{
-					// We are atr the bottom of the grid, so don't move and add the block to the 'kill' queue.
+					// We are at the bottom of the grid, so don't move and add the block to the 'kill' queue.
 					entitiesToKill.insert(entity.id());
 				}
 			}
@@ -168,6 +235,7 @@ void GameSystem::update(ex::EntityManager & em,
 		{
 			ex::Entity entityToKill = em.get(entityId);
 			entityToKill.remove<BlockWhole>();
+			entityToKill.remove<InputResponder>();
 		}
 
 		// Now we check if there are any lines

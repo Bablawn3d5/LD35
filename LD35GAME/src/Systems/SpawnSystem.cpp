@@ -41,6 +41,9 @@ void SpawnSystem::update(ex::EntityManager & em,
     };
 
     auto blockWhole = movingEnt.assign<BlockWhole>();
+	movingEnt.assign<InputResponder>();
+	auto sdf = movingEnt.assign<Body>();
+	auto asdf = sdf.get();
     while ( blocksToCreate > 0 ) {
       ex::Entity e = em.create();
       creator_rand(e);
