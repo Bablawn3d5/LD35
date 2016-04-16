@@ -10,7 +10,7 @@ void TextureRenderSystem::update(ex::EntityManager & em,
 	em.each<Body, GameBody>(
 		[this](ex::Entity entity, Body &body, GameBody &gameBody) {
 		body.position.x = static_cast<float> (gameBody.column * PIXELS_PER_GRID);
-		body.position.y = static_cast<float> (gameBody.row * PIXELS_PER_GRID);
+		body.position.y = static_cast<float> ((gameBody.row-1) * PIXELS_PER_GRID);
 	});
 
 	em.each<Body, Sprite>(
