@@ -61,6 +61,7 @@ SET(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS
        ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS} "${PYTHON_LIBRARY_DLL}")
 
 add_subdirectory(${LD35_Game_SOURCE_DIR}/GameEngine)
+add_subdirectory(${LD35_Game_SOURCE_DIR}/LD35GAME)
 
 # Set generator to ZIP/tarball for convenience
 set(CPACK_GENERATOR "ZIP;TGZ" )
