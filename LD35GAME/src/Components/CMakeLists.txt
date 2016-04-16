@@ -4,6 +4,8 @@ set(SRCROOT ${PROJECT_SOURCE_DIR}/src/Components)
 
 set(SRC
     ${INCROOT}/Sprite.hpp
+    ${INCROOT}/BlockWhole.hpp
+    ${INCROOT}/GameBody.hpp
 )
 
 # Set all source files
