@@ -39,6 +39,7 @@ void SpawnSystem::update(ex::EntityManager & em,
     // Create a block
     int blocksToCreate = dis(gen);
     ex::Entity movingEnt = em.create();
+    unsigned int color_index = color_chooser(gen);
     auto creator_rand = [&](ex::Entity e) {
       // Ensure we dont have a block created in the spot we picked.
       std::pair<int, int> p = { randRow(gen), randCol(gen) };
@@ -48,7 +49,6 @@ void SpawnSystem::update(ex::EntityManager & em,
       created.insert(p);
       e.assign<GameBody>(p.first, p.second, movingEnt.id());
       e.assign<Body>();
-      unsigned int color_index = color_chooser(gen);
       e.assign<Sprite>(textureName.at(color_index));
       auto b = e.component<GameBody>();
     };
