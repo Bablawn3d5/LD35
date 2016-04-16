@@ -10,11 +10,14 @@
 #include <Systems/TextureRenderSystem.h>
 #include <Components/Sprite.hpp>
 #include <Farquaad/Systems.hpp>
+#include <Farquaad/Systems/PythonSystem.h>
 #include <Farquaad/Components.hpp>
 #include <Farquaad/Core.hpp>
 #include <Farquaad/Thor/ResourceLoader.hpp>
 #include <Farquaad/Box2D/SFMLB2DDebug.h>
 #include <Thor/Resources.hpp>
+
+namespace fs = boost::filesystem;
 
 // Quick test for EntityX
 class Application : public entityx::EntityX {
@@ -36,6 +39,10 @@ public:
     systems.add<TextureRenderSystem>(target);
     systems.configure();
 
+    std::string path = fs::current_path().string();
+    auto pythonSystem = systems.add<PythonSystem>(&entities, path.c_str());
+    pythonSystem->add_path("Foo");
+
     // HACK(SMA) : Create entity right in this bloated constructor.
     thor::ResourceHolder<Json::Value, std::string> holder;
     for ( auto items : v["entities"] ) {
@@ -44,16 +51,6 @@ public:
       EntitySerializer es(json);
       auto entity = entities.create();
       es.Load(entity);
-    }
-
-    // HACK(SMA) : Create 'background' right up in here.
-    {
-      std::unique_ptr<sf::CircleShape> shape(new sf::CircleShape(100.f));
-      shape->setFillColor(sf::Color::Green);
-
-      auto entity = entities.create();
-      entity.assign<Body>();
-      entity.assign<RenderableShape>(std::move(shape));
     }
   }
 
@@ -64,6 +61,7 @@ public:
     systems.update<InputSystem>(dt);
     systems.update<PhysicsSystem>(dt);
     systems.update<TextureRenderSystem>(dt);
+    systems.update<PythonSystem>(dt);
     physWorld->DrawDebugData();
   }
 };
