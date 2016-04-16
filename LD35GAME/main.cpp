@@ -45,7 +45,7 @@ public:
 
     systems.add<TextureRenderSystem>(target);
 
-    unsigned int seed = v["seed"].asInt();
+    unsigned int seed = v["seed"].asUInt();
     if ( seed == 0 ) {
       std::random_device rd;
       std::mt19937 gen(rd());
