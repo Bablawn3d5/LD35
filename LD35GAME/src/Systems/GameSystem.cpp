@@ -18,49 +18,49 @@ GameSystem::GameSystem(double timeSpawn) : gameGrid(MAX_ROWS, std::vector<ex::En
 
   responders["+MoveUp"] = [](ex::Entity e) {
     if ( e.has_component<Body>() ) {
-      e.component<Body>()->direction.y -= 1;
+      e.component<Body>()->direction.y = -1;
     }
   };
 
   responders["-MoveUp"] = [](ex::Entity e) {
     if ( e.has_component<Body>() ) {
-      e.component<Body>()->direction.y += 1;
+      e.component<Body>()->direction.y = 0;
     }
   };
 
   responders["+MoveDown"] = [](ex::Entity e) {
     if ( e.has_component<Body>() ) {
-      e.component<Body>()->direction.y += 1;
+      e.component<Body>()->direction.y = 1;
     }
   };
 
   responders["-MoveDown"] = [](ex::Entity e) {
     if ( e.has_component<Body>() ) {
-      e.component<Body>()->direction.y -= 1;
+      e.component<Body>()->direction.y = 0;
     }
   };
 
   responders["+MoveLeft"] = [](ex::Entity e) {
     if ( e.has_component<Body>() ) {
-      e.component<Body>()->direction.x -= 1;
+      e.component<Body>()->direction.x = -1;
     }
   };
 
   responders["-MoveLeft"] = [](ex::Entity e) {
     if ( e.has_component<Body>() ) {
-      e.component<Body>()->direction.x += 1;
+      e.component<Body>()->direction.x = 0;
     }
   };
 
   responders["+MoveRight"] = [](ex::Entity e) {
     if ( e.has_component<Body>() ) {
-      e.component<Body>()->direction.x += 1;
+      e.component<Body>()->direction.x = 1;
     }
   };
 
   responders["-MoveRight"] = [](ex::Entity e) {
     if ( e.has_component<Body>() ) {
-      e.component<Body>()->direction.x -= 1;
+        e.component<Body>()->direction.x = 0;
     }
   };
 }

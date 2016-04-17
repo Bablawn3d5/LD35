@@ -87,7 +87,7 @@ public:
 
 int main() {
   sf::RenderWindow window(sf::VideoMode(800, 800), "SFML works!");
-  window.setKeyRepeatEnabled(false);
+  window.setKeyRepeatEnabled(true);
 
   // HACK(SMA) : Initalize these component serializers so they become registered.
   {
