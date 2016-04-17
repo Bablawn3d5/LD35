@@ -120,7 +120,7 @@ void GameSystem::update(ex::EntityManager & em,
 			{
 				// Check if moving the block will collide with another block.
 				// Also ignore collisions with your own entity.
-				ex::Entity::Id blockPartBesideId = gameGrid[blockPartGameBody->row - 1][currentColumn + body.direction.x - 1];
+				ex::Entity::Id blockPartBesideId = gameGrid[blockPartGameBody->row - 1][currentColumn + static_cast<int>(body.direction.x) - 1];
 				if (blockPartBesideId == ex::Entity::INVALID)
 				{
 					// Movement is allowed here.
