@@ -49,7 +49,7 @@ void SpawnSystem::update(ex::EntityManager & em,
 
       // Ensure we dont have a block created in the spot we picked.
       std::pair<int, int> p = { randRow(gen), randCol(gen) };
-      while ( created.find(p) != created.end() ) {
+      while ( created.count(p) != 0 ) {
         p = { randRow(gen), randCol(gen) };
       }
       created.insert(p);
@@ -84,6 +84,8 @@ void SpawnSystem::update(ex::EntityManager & em,
 
     // If the squre is unoccupied move pivot there
     if ( created.find(pair) == created.end() ) {
+      created.insert(pair);
+      created.erase({ p->row,p->column });
       p->row = pair.first;
       p->column = pair.second;
     }
