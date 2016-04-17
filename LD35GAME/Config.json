@@ -8,10 +8,10 @@
   },
   "entities" : [
     "./Resources/Hero.json",
-    "./Resources/Box.json"
+    "./Resources/BG.json"
   ],
   "spawn_row" : 5,
   "spawn_col" : 10,
-  "time_spawn": 0.05,
+  "time_spawn": 0.5,
   "seed" : 0
 }
