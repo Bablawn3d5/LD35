@@ -86,8 +86,6 @@ void GameSystem::update(ex::EntityManager & em,
 		for (auto entityId : blockWhole.blockParts) {
 			ex::Entity blockPartEntity = em.get(entityId);
 			auto blockPartGameBody = blockPartEntity.component<GameBody>();
-      auto ay = blockPartGameBody->row - 1;
-      auto ax = blockPartGameBody->column - 1;
 			if (gameGrid[blockPartGameBody->row - 1][blockPartGameBody->column - 1] != ex::Entity::INVALID &&
 				gameGrid[blockPartGameBody->row - 1][blockPartGameBody->column - 1] != entityId)
 			{
@@ -269,10 +267,25 @@ void GameSystem::update(ex::EntityManager & em,
 
 			if (isRowFull == true)
 			{
-				for (unsigned int j = 0; j < gameGrid[i].size(); j++)
+				// Clear this row
+				for (unsigned int j = 0; j < MAX_COLUMNS; j++)
 				{
 					em.destroy(gameGrid[i][j]);
 					gameGrid[i][j] = ex::Entity::INVALID;
+				}
+
+				// Move down all blocks above the row
+				for (int k = i - 1; k >= 0; k--)
+				{
+					for (int l = 0; l < MAX_COLUMNS; l++)
+					{
+						if (gameGrid[k][l] != ex::Entity::INVALID)
+						{
+							ex::Entity blockPartEntity = em.get(gameGrid[k][l]);
+							auto blockPartGameBody = blockPartEntity.component<GameBody>();
+							blockPartGameBody->row++;
+						}
+					}
 				}
 			}
 		}
