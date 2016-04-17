@@ -97,37 +97,33 @@ void SpawnSystem::update(ex::EntityManager & em,
       // If we're not next to or on the piviot.
       // Move towards
       if ( dist2 > 1 ) {
-        auto vec_x = p->row - b->row;
-        auto vec_y = p->column - b->column;
+        double dy = (b->row - p->row);
+        double dx = (b->column - p->column);
+        
+        double slope = dy/dx;
+        double intercept = p->row - p->column * slope;
 
-        // Normalize direction, we want this vector to be 1,0, or -1
-        vec_x = (vec_x > 1) ? 1 : vec_x;
-        vec_x = (vec_x < -1) ? -1 : vec_x;
+        double vec_y = dy / sqrt(dist2);
+        double vec_x = dx / sqrt(dist2);
 
-        vec_y = (vec_y > 1) ? 1 : vec_y;
-        vec_y = (vec_y < -1) ? -1 : vec_y;
-
-        // Move towards
-        std::pair<int, int> paira = { b->row, b->column };
-        std::pair<int, int> pairb = { p->row, p->column };
-        std::pair<int, int> pair = { b->row + vec_x, b->column + vec_y};
-        auto x2 = abs(pair.first - p->row) * abs(pair.first - p->row);
-        auto y2 = abs(pair.second - p->column) * abs(pair.second - p->column);
-        auto dist2 = x2 + y2;
-        while ( dist2 > 1 ) {
-          if( created.count(pair) > 1 )
+        double x = p->column;
+        double y = p->row;
+        auto ads = b->column;
+        auto add = b->row;
+        while ( static_cast<int>(x) != b->column ) {
+          std::pair<int, int> p = {static_cast<int>(slope*x+intercept),  static_cast<int>(x)};
+          // If its unoccupied move it there.
+          if ( created.count(p) == 0 ) {
+            created.insert(p);
+            created.erase({ b->row,b->column });
+            b->row = p.first;
+            b->column = p.second;
+            
             break;
-          pair = { pair.first + vec_x, pair.second + vec_y };
-          x2 = abs(pair.first - p->row) * abs(pair.first - p->row);
-          y2 = abs(pair.second - p->column) * abs(pair.second - p->column);
-          dist2 = x2 + y2;
+          }
+          x += vec_x;
         }
 
-        // If its unoccupied move it there.
-        if ( created.count(pair) == 0) {
-          b->row = pair.first;
-          b->column = pair.second;
-        }
       }
     }
   }

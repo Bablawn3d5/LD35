@@ -86,6 +86,8 @@ void GameSystem::update(ex::EntityManager & em,
 		for (auto entityId : blockWhole.blockParts) {
 			ex::Entity blockPartEntity = em.get(entityId);
 			auto blockPartGameBody = blockPartEntity.component<GameBody>();
+      auto ay = blockPartGameBody->row - 1;
+      auto ax = blockPartGameBody->column - 1;
 			if (gameGrid[blockPartGameBody->row - 1][blockPartGameBody->column - 1] != ex::Entity::INVALID &&
 				gameGrid[blockPartGameBody->row - 1][blockPartGameBody->column - 1] != entityId)
 			{
