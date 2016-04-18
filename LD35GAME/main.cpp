@@ -22,6 +22,7 @@
 #include <Farquaad/Box2D/SFMLB2DDebug.h>
 #include <Thor/Resources.hpp>
 
+#include <iomanip>
 #include <random>
 
 namespace fs = boost::filesystem;
@@ -86,7 +87,7 @@ public:
 };
 
 int main() {
-  sf::RenderWindow window(sf::VideoMode(800, 800), "SFML works!");
+  sf::RenderWindow window(sf::VideoMode(800, 800), "LD35 - Shapetris");
   window.setKeyRepeatEnabled(true);
 
   // HACK(SMA) : Initalize these component serializers so they become registered.
@@ -109,6 +110,10 @@ int main() {
     sf::Time elapsed = clock.restart();
     app.update(elapsed.asSeconds());
     window.display();
+    int fps = static_cast<int>(1.f / elapsed.asSeconds());
+    std::stringstream ss;
+    ss << "LD 35 - Shapetris | FPS: " << fps;
+    window.setTitle(ss.str());
   }
 
   return 0;
