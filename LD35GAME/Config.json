@@ -7,7 +7,6 @@
     "Use" : "KEY_E"
   },
   "entities" : [
-    "./Resources/Hero.json",
     "./Resources/BG.json"
   ],
   "move_delay" : 0.1,

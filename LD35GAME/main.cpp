@@ -32,6 +32,7 @@ class Application : public entityx::EntityX {
 public:
   std::shared_ptr<b2World> physWorld;
   std::shared_ptr<SFMLB2DDebug> debugDraw;
+  std::shared_ptr<GameSystem> gsys;
 
   explicit Application(sf::RenderWindow &target, Json::Value& v) {
     b2Vec2 gravity = b2Vec2(0.0f, 0.0f);
@@ -55,7 +56,7 @@ public:
     }
 
     systems.add<SpawnSystem>(v["spawn_row"].asInt(), v["spawn_col"].asInt(), seed);
-    auto gsys = systems.add<GameSystem>(v["time_spawn"].asDouble());
+    gsys = systems.add<GameSystem>(v["time_spawn"].asDouble());
     gsys->BASE_TIME_RESET_MOVEMENT = v["move_delay"].asDouble();
     gsys->number_of_lines  = v["num_line_cleared"].asInt();
     gsys->lines_per_level = v["line_per_level"].asDouble();
