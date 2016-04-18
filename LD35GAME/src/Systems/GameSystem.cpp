@@ -170,6 +170,8 @@ void GameSystem::update(ex::EntityManager & em,
 
 		if (allowHorizontalMovement == true)
 		{
+      // Magic tweaking number.
+      time_lock -= dt/2;
       this->timeMovement = this->BASE_TIME_RESET_MOVEMENT;
 			for (auto entityId : blockWhole.blockParts) {
 				// NOTE: row/column are 1-based indexing, but we access the game grid using 0-based index.
