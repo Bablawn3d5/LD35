@@ -125,8 +125,21 @@ void SpawnSystem::update(ex::EntityManager & em,
           }
           x += vec_x;
         }
-
       }
+    }
+  
+    //Center the block whole around the piviot by shifting all blocks.
+    // HACK(SMA) : skip grid resync since we're done moving spawning blocks.
+    {
+    auto p = em.get(pivotId).component<GameBody>();
+    int shift = (limitCol/2) - p->column;
+    for ( auto blockId : blockWhole->blockParts ) {
+      auto block = em.get(blockId).component<GameBody>();
+      block->column = block->column + shift;
+      assert(block->column > 0);
+      assert(block->column < limitCol);
+    }
+
     }
   }
 }

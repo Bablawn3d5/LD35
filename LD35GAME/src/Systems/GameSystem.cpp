@@ -7,7 +7,7 @@
 GameSystem::GameSystem(double timeSpawn) : gameGrid(MAX_ROWS, std::vector<ex::Entity::Id>(MAX_COLUMNS)) {
 
   timeSinceLastMovement = 0.0;
-  this->timeSpawn = timeSpawn;
+  this->BASE_TIME_SPAWN = timeSpawn;
 
   for (unsigned int i = 0; i < gameGrid.size(); i++) {
 	  for (unsigned int j = 0; j < gameGrid[i].size(); j++)
@@ -101,6 +101,17 @@ void GameSystem::update(ex::EntityManager & em,
 	// Move the moveable things left-right
 	em.each<Body, BlockWhole>(
 		[&](ex::Entity entity, Body &body, BlockWhole &blockWhole) {
+
+    // (1/4)th spawn time if we're holding down
+    if ( body.direction.y == 1 ) {
+      this->timeSpawn = BASE_TIME_SPAWN/4;
+    } else if ( body.direction.y == -1 ) {
+      // Instant drop if we're holding up
+      this->timeSpawn = 0;
+    } else {
+      this->timeSpawn = BASE_TIME_SPAWN;
+    }
+
 		if (body.direction.x == 0)
 		{
 			return;
@@ -172,7 +183,8 @@ void GameSystem::update(ex::EntityManager & em,
 			}
 		}
 	});
-
+  
+    // Move block dwn
 	if (timeSinceLastMovement >= timeSpawn )
 	{
 		// Do stuff with moving parts
