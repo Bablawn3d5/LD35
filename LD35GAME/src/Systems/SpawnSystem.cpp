@@ -74,12 +74,12 @@ void SpawnSystem::update(ex::EntityManager & em,
     // Migrate pivot to be the higest possible row.
     auto pivotId = blockWhole->blockParts.at(0);
     auto p = em.get(pivotId).component<GameBody>();
-    auto highest = limitRow;
+    auto highest = 1;
     std::pair<int, int> pair = { highest, p->column};
     // Get higest possible
     // While we're not at the top and current square is occupied
-    while ( highest != 1 && created.find(pair) == created.end() ) {
-      pair = { highest--, p->column};
+    while ( highest != limitRow && created.find(pair) == created.end() ) {
+      pair = { highest++, p->column};
     }
 
     // If the squre is unoccupied move pivot there
