@@ -9,6 +9,8 @@ GameSystem::GameSystem(double timeSpawn) : gameGrid(MAX_ROWS, std::vector<ex::En
   timeSinceLastMovement = 0.0;
   this->number_of_lines = 0;
   this->BASE_TIME_SPAWN = timeSpawn;
+  this->time_lock = 0;
+  this->is_instant = false;
 
   for (unsigned int i = 0; i < gameGrid.size(); i++) {
 	  for (unsigned int j = 0; j < gameGrid[i].size(); j++)
@@ -109,6 +111,7 @@ void GameSystem::update(ex::EntityManager & em,
     } else if ( body.direction.y == -1 ) {
       // Instant drop if we're holding up
       this->timeSpawn = 0;
+      this->is_instant = true;
     } else {
       this->timeSpawn = BASE_TIME_SPAWN;
     }
@@ -185,138 +188,149 @@ void GameSystem::update(ex::EntityManager & em,
 		}
 	});
   
-  // Move block dwn
-  // Move it faster as we clear more lines
-	if (timeSinceLastMovement >= ( timeSpawn - ((int)(this->number_of_lines/this->lines_per_level) * this->speed_diff) ))
-	{
-		// Do stuff with moving parts
-		std::set<ex::Entity::Id> entitiesToKill;
+	// Do stuff with moving parts
+	std::set<ex::Entity::Id> entitiesToKill;
 
-		em.each<BlockWhole>(
-			[&](ex::Entity entity, BlockWhole &blockWhole) {
+	em.each<BlockWhole>(
+		[&](ex::Entity entity, BlockWhole &blockWhole) {
 
-			for (auto entityId : blockWhole.blockParts) {
-				// NOTE: row/column are 1-based indexing, but we access the game grid using 0-based index.
-				ex::Entity blockPartEntity = em.get(entityId);
-				auto blockPartGameBody = blockPartEntity.component<GameBody>();
-				int currentRow = blockPartGameBody->row;
+		for (auto entityId : blockWhole.blockParts) {
+			// NOTE: row/column are 1-based indexing, but we access the game grid using 0-based index.
+			ex::Entity blockPartEntity = em.get(entityId);
+			auto blockPartGameBody = blockPartEntity.component<GameBody>();
+			int currentRow = blockPartGameBody->row;
 
-				// Check if we are at the bottom of the game grid.
-				if (currentRow + 1 <= MAX_ROWS)
+			// Check if we are at the bottom of the game grid.
+			if (currentRow + 1 <= MAX_ROWS)
+			{
+				// Check if moving the block down will collide with another block.
+				// Also ignore collisions with your own entity.
+				ex::Entity::Id blockPartBelowId = gameGrid[currentRow][blockPartGameBody->column - 1];
+				if (blockPartBelowId == ex::Entity::INVALID)
 				{
-					// Check if moving the block down will collide with another block.
-					// Also ignore collisions with your own entity.
-					ex::Entity::Id blockPartBelowId = gameGrid[currentRow][blockPartGameBody->column - 1];
-					if (blockPartBelowId == ex::Entity::INVALID)
+					// Movement is allowed here.
+				}
+				else
+				{
+					auto blockPartBelowGameBody = em.get(blockPartBelowId).component<GameBody>();
+					if (blockPartBelowGameBody->parentId == entity.id())
 					{
-						// Movement is allowed here.
+						// Hello, it's me.
 					}
 					else
 					{
-						auto blockPartBelowGameBody = em.get(blockPartBelowId).component<GameBody>();
-						if (blockPartBelowGameBody->parentId == entity.id())
-						{
-							// Hello, it's me.
-						}
-						else
-						{
-							// There is a block below us, so don't move and add the block to the 'kill' queue.
-							entitiesToKill.insert(entity.id());
-						}
+						// There is a block below us, so don't move and add the block to the 'kill' queue.
+						entitiesToKill.insert(entity.id());
 					}
 				}
-				else
-				{
-					// We are at the bottom of the grid, so don't move and add the block to the 'kill' queue.
-					entitiesToKill.insert(entity.id());
-				}
 			}
-
-			if (entitiesToKill.size() == 0)
+			else
 			{
-				for (auto entityId : blockWhole.blockParts) {
-					// NOTE: row/column are 1-based indexing, but we access the game grid using 0-based index.
-					ex::Entity blockPartEntity = em.get(entityId);
-					auto blockPartGameBody = blockPartEntity.component<GameBody>();
-					int currentRow = blockPartGameBody->row;
-					
-					// All clear below - full speed ahead
-					// First, remove the block from its current spot in the grid.
-					gameGrid[currentRow - 1][blockPartGameBody->column - 1] = ex::Entity::INVALID;
-
-					// Set the new position in the grid.
-					blockPartGameBody->row = currentRow + 1;
-					gameGrid[currentRow][blockPartGameBody->column - 1] = blockPartEntity.id();
-				}
+				// We are at the bottom of the grid, so don't move and add the block to the 'kill' queue.
+				entitiesToKill.insert(entity.id());
 			}
-		});
-
-		for each (ex::Entity::Id entityId in entitiesToKill)
-		{
-			ex::Entity entityToKill = em.get(entityId);
-			entityToKill.remove<BlockWhole>();
-			entityToKill.remove<InputResponder>();
 		}
 
-		// Now we check if there are any lines
-		for (unsigned int i = 0; i < gameGrid.size(); i++)
-		{
-			bool isRowFull = true;
+		if (entitiesToKill.size() == 0) {
+      // Move block dwn
+      // Move it faster as we clear more lines
+      if ( timeSinceLastMovement >= (timeSpawn - ((int)(this->number_of_lines / this->lines_per_level) * this->speed_diff)) ) {
+        for ( auto entityId : blockWhole.blockParts ) {
+          // NOTE: row/column are 1-based indexing, but we access the game grid using 0-based index.
+          ex::Entity blockPartEntity = em.get(entityId);
+          auto blockPartGameBody = blockPartEntity.component<GameBody>();
+          int currentRow = blockPartGameBody->row;
 
-			for each(ex::Entity::Id entityId in gameGrid[i])
+          // All clear below - full speed ahead
+          // First, remove the block from its current spot in the grid.
+          gameGrid[currentRow - 1][blockPartGameBody->column - 1] = ex::Entity::INVALID;
+
+          // Set the new position in the grid.
+          blockPartGameBody->row = currentRow + 1;
+          gameGrid[currentRow][blockPartGameBody->column - 1] = blockPartEntity.id();
+        }
+        timeSinceLastMovement = 0.0;
+        time_lock = 0;
+      }
+		}
+	});
+
+  // Only remove input if we've locked the blocks.
+  if ( entitiesToKill.size() != 0 ) {
+    if (  is_instant || ( time_lock >= lock_delay ) ) {
+      is_instant = false;
+      time_lock = 0;
+    } else {
+      time_lock += dt;
+    }
+
+    if ( time_lock == 0 ) {
+      for each (ex::Entity::Id entityId in entitiesToKill) {
+        ex::Entity entityToKill = em.get(entityId);
+        entityToKill.remove<BlockWhole>();
+        entityToKill.remove<InputResponder>();
+      }
+    }
+  }
+
+	// Now we check if there are any lines
+	for (unsigned int i = 0; i < gameGrid.size(); i++)
+	{
+		bool isRowFull = true;
+
+		for each(ex::Entity::Id entityId in gameGrid[i])
+		{
+			if (entityId == ex::Entity::INVALID)
 			{
-				if (entityId == ex::Entity::INVALID)
+				isRowFull = false;
+			}
+			else
+			{
+				ex::Entity currentEntity = em.get(entityId);
+				auto currentEntityGameBody = currentEntity.component<GameBody>();
+				ex::Entity parentEntity = em.get(currentEntityGameBody->parentId);
+				if (parentEntity.has_component<BlockWhole>() == true)
 				{
 					isRowFull = false;
 				}
-				else
-				{
-					ex::Entity currentEntity = em.get(entityId);
-					auto currentEntityGameBody = currentEntity.component<GameBody>();
-					ex::Entity parentEntity = em.get(currentEntityGameBody->parentId);
-					if (parentEntity.has_component<BlockWhole>() == true)
-					{
-						isRowFull = false;
-					}
-				}
-
-				if (isRowFull == false)
-				{
-					// No need to keep processing the row if it's missing a square.
-					break;
-				}
 			}
 
-			if (isRowFull == true)
+			if (isRowFull == false)
 			{
-        this->number_of_lines++;
-				// Clear this row
-				for (unsigned int j = 0; j < MAX_COLUMNS; j++)
-				{
-					em.destroy(gameGrid[i][j]);
-					gameGrid[i][j] = ex::Entity::INVALID;
-				}
+				// No need to keep processing the row if it's missing a square.
+				break;
+			}
+		}
 
-				// Move down all blocks above the row
-				for (int k = i - 1; k >= 0; k--)
+		if (isRowFull == true)
+		{
+      this->number_of_lines++;
+			// Clear this row
+			for (unsigned int j = 0; j < MAX_COLUMNS; j++)
+			{
+				em.destroy(gameGrid[i][j]);
+				gameGrid[i][j] = ex::Entity::INVALID;
+			}
+
+			// Move down all blocks above the row
+			for (int k = i - 1; k >= 0; k--)
+			{
+				for (int l = 0; l < MAX_COLUMNS; l++)
 				{
-					for (int l = 0; l < MAX_COLUMNS; l++)
+					if (gameGrid[k][l] != ex::Entity::INVALID)
 					{
-						if (gameGrid[k][l] != ex::Entity::INVALID)
-						{
-							ex::Entity blockPartEntity = em.get(gameGrid[k][l]);
-							auto blockPartGameBody = blockPartEntity.component<GameBody>();
-							blockPartGameBody->row++;
-              // Resync gird
-              gameGrid[k][l] = ex::Entity::INVALID;
-              assert(gameGrid[k + 1][l] == ex::Entity::INVALID);
-              gameGrid[k+1][l] = blockPartEntity.id();
-						}
+						ex::Entity blockPartEntity = em.get(gameGrid[k][l]);
+						auto blockPartGameBody = blockPartEntity.component<GameBody>();
+						blockPartGameBody->row++;
+            // Resync gird
+            gameGrid[k][l] = ex::Entity::INVALID;
+            assert(gameGrid[k + 1][l] == ex::Entity::INVALID);
+            gameGrid[k+1][l] = blockPartEntity.id();
 					}
 				}
 			}
 		}
-
-		timeSinceLastMovement = 0.0;
 	}
+
+
 }

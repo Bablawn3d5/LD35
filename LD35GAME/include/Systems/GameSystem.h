@@ -24,9 +24,12 @@ public:
   double number_of_lines;
   double lines_per_level;
   double speed_diff;
+  double lock_delay;
 private:
   KeyBindReponder responders;
   double timeSinceLastMovement;
+  bool is_instant;
+  double time_lock;
   double timeSpawn;
 
   static const int MAX_ROWS = 16;

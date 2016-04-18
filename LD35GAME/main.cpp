@@ -60,6 +60,7 @@ public:
     gsys->number_of_lines  = v["num_line_cleared"].asInt();
     gsys->lines_per_level = v["line_per_level"].asDouble();
     gsys->speed_diff = v["line_speed_per_level"].asDouble();
+    gsys->lock_delay = v["lock_delay"].asDouble();
     systems.configure();
 
     //std::string path = fs::current_path().string();
