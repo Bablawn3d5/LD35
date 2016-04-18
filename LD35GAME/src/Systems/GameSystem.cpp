@@ -284,6 +284,10 @@ void GameSystem::update(ex::EntityManager & em,
 							ex::Entity blockPartEntity = em.get(gameGrid[k][l]);
 							auto blockPartGameBody = blockPartEntity.component<GameBody>();
 							blockPartGameBody->row++;
+              // Resync gird
+              gameGrid[k][l] = ex::Entity::INVALID;
+              assert(gameGrid[k + 1][l] == ex::Entity::INVALID);
+              gameGrid[k+1][l] = blockPartEntity.id();
 						}
 					}
 				}
