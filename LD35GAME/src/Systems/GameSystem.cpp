@@ -7,6 +7,7 @@
 GameSystem::GameSystem(double timeSpawn) : gameGrid(MAX_ROWS, std::vector<ex::Entity::Id>(MAX_COLUMNS)) {
 
   timeSinceLastMovement = 0.0;
+  this->number_of_lines = 0;
   this->BASE_TIME_SPAWN = timeSpawn;
 
   for (unsigned int i = 0; i < gameGrid.size(); i++) {
@@ -184,8 +185,9 @@ void GameSystem::update(ex::EntityManager & em,
 		}
 	});
   
-    // Move block dwn
-	if (timeSinceLastMovement >= timeSpawn )
+  // Move block dwn
+  // Move it faster as we clear more lines
+	if (timeSinceLastMovement >= ( timeSpawn - ((int)(this->number_of_lines/this->lines_per_level) * this->speed_diff) ))
 	{
 		// Do stuff with moving parts
 		std::set<ex::Entity::Id> entitiesToKill;
@@ -287,6 +289,7 @@ void GameSystem::update(ex::EntityManager & em,
 
 			if (isRowFull == true)
 			{
+        this->number_of_lines++;
 				// Clear this row
 				for (unsigned int j = 0; j < MAX_COLUMNS; j++)
 				{

@@ -20,6 +20,10 @@ public:
   double timeMovement;
   double BASE_TIME_RESET_MOVEMENT;
   double BASE_TIME_SPAWN;
+
+  double number_of_lines;
+  double lines_per_level;
+  double speed_diff;
 private:
   KeyBindReponder responders;
   double timeSinceLastMovement;

@@ -14,5 +14,8 @@
   "spawn_row" : 5,
   "spawn_col" : 10,
   "time_spawn": 0.5,
+  "num_line_cleared" : 0,
+  "line_per_level" : 5,
+  "line_speed_per_level" : 0.05,
   "seed" : 0
 }
