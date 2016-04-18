@@ -17,6 +17,8 @@ public:
   explicit GameSystem(double timeSpawn);
   void update(ex::EntityManager &em, ex::EventManager &events, ex::TimeDelta dt);  // NOLINT
 
+  double timeMovement;
+  double BASE_TIME_RESET_MOVEMENT;
 private:
   KeyBindReponder responders;
   double timeSinceLastMovement;

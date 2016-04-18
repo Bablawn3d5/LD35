@@ -55,7 +55,8 @@ public:
     }
 
     systems.add<SpawnSystem>(v["spawn_row"].asInt(), v["spawn_col"].asInt(), seed);
-    systems.add<GameSystem>(v["time_spawn"].asDouble());
+    auto gsys = systems.add<GameSystem>(v["time_spawn"].asDouble());
+    gsys->BASE_TIME_RESET_MOVEMENT = v["move_delay"].asDouble();
     systems.configure();
 
     //std::string path = fs::current_path().string();

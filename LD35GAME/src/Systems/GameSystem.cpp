@@ -146,8 +146,16 @@ void GameSystem::update(ex::EntityManager & em,
 			}
 		}
 
+    // If valid move, then check if we've moved already
+    if ( timeMovement > 0 ) {
+      timeMovement -= dt;
+      allowHorizontalMovement = false;
+    }
+
+
 		if (allowHorizontalMovement == true)
 		{
+      this->timeMovement = this->BASE_TIME_RESET_MOVEMENT;
 			for (auto entityId : blockWhole.blockParts) {
 				// NOTE: row/column are 1-based indexing, but we access the game grid using 0-based index.
 				ex::Entity blockPartEntity = em.get(entityId);
